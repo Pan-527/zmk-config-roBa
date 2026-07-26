@@ -43,6 +43,11 @@
             bindings = <&to_layer_0 TAB>;
             key-positions = <11 12>;
         };
+
+        shift_command {
+            bindings = <&kp LS(LEFT_COMMAND)>;
+            key-positions = <18 20>;
+        };
     };
 
     macros {
