@@ -48,6 +48,16 @@
             bindings = <&kp LS(LEFT_COMMAND)>;
             key-positions = <18 20>;
         };
+
+        left_click {
+            bindings = <&mkp MB1>;
+            key-positions = <18 19>;
+        };
+
+        right_click {
+            bindings = <&mkp MB2>;
+            key-positions = <19 20>;
+        };
     };
 
     macros {
