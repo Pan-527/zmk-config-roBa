@@ -10,6 +10,7 @@
 
 &trackball {
     // automouse-layer = <4>;
+
     scroll-layers = <5>;
 
     // arrows {
@@ -47,16 +48,6 @@
         shift_command {
             bindings = <&kp LS(LEFT_COMMAND)>;
             key-positions = <18 20>;
-        };
-
-        left_click {
-            bindings = <&mkp MB1>;
-            key-positions = <18 19>;
-        };
-
-        right_click {
-            bindings = <&mkp MB2>;
-            key-positions = <19 20>;
         };
     };
 
