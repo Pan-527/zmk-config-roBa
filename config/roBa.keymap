@@ -91,7 +91,7 @@
 &kp GRAVE         &kp LEFT_CONTROL  &kp LEFT_ALT  &lt_to_layer_0 2 LEFT_COMMAND  &lt 3 SPACE  &lt 1 TAB          &kp BACKSPACE     &kp RIGHT_COMMAND                                &lt 6 DEL
             >;
 
-            sensor-bindings = <&inc_dec_kp PAGE_UP PAGE_DOWN>;
+            sensor-bindings = <&inc_dec_kp C_VOLUME_UP C_VOLUME_DOWN>;
         };
 
         FUNCTION {
