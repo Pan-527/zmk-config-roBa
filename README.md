@@ -11,7 +11,7 @@ SCROLL レイヤー (K 長押し) でボールを弾いて離すと、iOS のよ
 
 - 縦スクロール専用 (`axis = <1>`)。Shift を押している間は横スクロールになります。
 - 調整値は `config/roBa.keymap` の `&scroll_inertia` にまとめてあります。
-  - 慣性が付きにくい: `start` / `move` を下げる
+  - 慣性が付きにくい: `start` / `move` / `min-events` を下げる。逆にゆっくりスクロールしただけで慣性が付くなら上げる
   - 滑りすぎる / 止まりが遅い: `decay-*` を下げる (例 `980`) か `friction` を上げる (例 `100`)
   - スクロール速度: `&trackball_listener` 内の `&zip_scroll_scaler 1 16` の第 2 引数を変更 (小さいほど速い)。変更したら `&scroll_inertia` の `scale-div` も同じ値にする
   - 縦方向が逆: `&zip_y_scaler (-1) 1` を `&zip_y_scaler 1 1` にする
@@ -30,6 +30,8 @@ GESTURE レイヤー (J 長押し) でボールを弾くと、方向に応じた
 
 - 割り当ては `config/roBa.keymap` の `&trackball_gesture` の `bindings` (右, 左, 上, 下 の順) で変更できます。上下が逆なら 3 つ目と 4 つ目を入れ替えてください。
 - 感度は `tick` で調整します (小さいほど少ない動きで発火)。
+- J を離した後もボールは惰性で回るので、その間はカーソルが動かないように GESTURE_SETTLE レイヤー (8) が「最後のボール入力から 500ms」だけ自動で有効になり、ボールの動きを捨てます。この時間は `&trackball_listener` 内の `&zip_temp_layer 8 500` の 2 つ目の引数で変更できます。
+- J は layer-tap なので、押してから約 200ms (tapping-term) 経つまではレイヤーが有効になりません。押した直後に弾くとその分カーソルが動くので、J を押してひと呼吸おいてから弾いてください。
 
 ### 構成
 
@@ -40,4 +42,5 @@ GESTURE レイヤー (J 長押し) でボールを弾くと、方向に応じた
 
 スクロールはドライバの `scroll-layers` ではなく `trackball_listener` の `scroller` で処理しているため、
 `CONFIG_PMW3610_SCROLL_TICK` と `CONFIG_PMW3610_INVERT_SCROLL_X` は使われません。
+ZMK の `CONFIG_ZMK_POINTING_SMOOTH_SCROLLING` (HID Resolution Multiplier) は macOS がサードパーティ製マウスに対して無視するため有効にしていません。
 レイヤーの並びを変えた場合は、`&scroll_inertia` の `layer` と `&trackball_listener` 内の `layers` の番号も合わせて変更してください。

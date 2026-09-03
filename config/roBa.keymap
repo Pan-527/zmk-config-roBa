@@ -49,19 +49,25 @@
     scale-div = <16>;
 
     // フリック判定のしきい値 (値を下げると軽い動きでも慣性が付く)
-    // 既定値は 1000CPI 向け (start 40 / move 80) なので 800CPI 用に少し下げている
-    start = <32>;     // ピーク速度 (カウント/フレーム)
-    move = <64>;      // フリック中の合計移動量 (カウント)
+    // モジュールの既定値は start 40 / move 80 だが、トラックパッドのように
+    // 弱いフリックでも慣性が付くようにかなり低くしている。
+    // ゆっくりスクロールしただけで慣性が付いてしまうなら両方を 1.5〜2 倍にする。
+    start = <10>;     // ピーク速度 (カウント/フレーム)
+    move = <20>;      // フリック中の合計移動量 (カウント)
+
+    // 短いフリックでも慣性が付くように、判定に必要なフレーム数を減らしている
+    min-events = <4>;     // 既定 10。慣性が付く前に必要なイベント数
+    decel-samples = <2>;  // 既定 3。「離した」と判定するまでの減速フレーム数
 
     // 慣性が止まる速度。scale 1 / scale-div 16 なら 1 前後が目安
     stop = <1>;
 
     // 減衰の強さ: decay-* を 990 → 995 にすると長く滑り、980 にすると早く止まる
     // friction を上げる (例 100) と小さなフリックが早めに止まる
+    friction = <20>;  // 既定 35。小さなフリックも少し長く滑らせる
     // decay-fast = <990>;
     // decay-slow = <990>;
     // decay-tail = <990>;
-    // friction = <35>;
 };
 
 // ---------------------------------------------------------------------------
@@ -86,6 +92,15 @@
     max_pending_activations = <1>;  // 1 回のフリックで溜め込む発火数
 };
 
+// ジェスチャー後の待機用。ボールの動きを何にも変換せず捨てるだけ。
+&trackball_sink {
+    bindings = <&none>, <&none>, <&none>, <&none>;
+    tick = <30000>;   // 発火しないように十分大きくする
+    threshold = <0>;
+    max_threshold = <30000>;
+    max_pending_activations = <1>;
+};
+
 // ---------------------------------------------------------------------------
 // レイヤーごとのトラックボール処理
 // 該当レイヤーが有効な間はデフォルトのカーソル移動の代わりにこちらが使われる。
@@ -101,9 +116,25 @@
         >;
     };
 
+    // J を押している間: ジェスチャー判定。
+    // 同時に GESTURE_SETTLE レイヤー (8) を「最後のボール入力から 500ms」だけ有効にする。
     gesture {
         layers = <7>;   // GESTURE レイヤー
-        input-processors = <&trackball_gesture>;
+        input-processors = <
+            &zip_temp_layer 8 500
+            &trackball_gesture
+        >;
+    };
+
+    // J を離した後、ボールが惰性で回っている間はここに入り、動きを捨てる。
+    // ボールが止まって 500ms 経つとレイヤー 8 が外れて通常のカーソル操作に戻る。
+    // 惰性で回る時間が長くてカーソルが動くなら 500 を大きくする。
+    gesture_settle {
+        layers = <8>;   // GESTURE_SETTLE レイヤー
+        input-processors = <
+            &zip_temp_layer 8 500
+            &trackball_sink
+        >;
     };
 };
 
@@ -233,6 +264,16 @@
         };
 
         GESTURE {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans                      &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans                          &trans
+            >;
+        };
+
+        // ジェスチャー後にボールの惰性回転を無視するための一時レイヤー (キーは全て透過)
+        GESTURE_SETTLE {
             bindings = <
 &trans  &trans  &trans  &trans  &trans                      &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
