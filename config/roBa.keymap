@@ -44,30 +44,33 @@
     // Shift を押している間だけ横スクロールになる
     swap-mod = <(MOD_LSFT | MOD_RSFT)>;
 
-    // 後段の zip_scroll_scaler の引数 (1 16) と必ず同じ値にする
-    scale = <1>;
-    scale-div = <16>;
+    // 後段の zip_scroll_scaler の引数 (4 540) と必ず同じ値にする。
+    // 作者推奨の 4:675 (1000CPI) を 800CPI 向けに換算した値。
+    // スクロール量を変えるときは scale-div と zip_scroll_scaler の第 2 引数を
+    // 同時に変える (小さいほど速い。例: 270 で 2 倍速)。
+    scale = <4>;
+    scale-div = <540>;
 
-    // フリック判定のしきい値 (値を下げると軽い動きでも慣性が付く)
-    // モジュールの既定値は start 40 / move 80 だが、トラックパッドのように
-    // 弱いフリックでも慣性が付くようにかなり低くしている。
-    // ゆっくりスクロールしただけで慣性が付いてしまうなら両方を 1.5〜2 倍にする。
-    start = <10>;     // ピーク速度 (カウント/フレーム)
-    move = <20>;      // フリック中の合計移動量 (カウント)
+    // フリック判定のしきい値。作者推奨 (1000CPI で start 45 / move 85) を
+    // 800CPI 向けに換算した値。
+    // ゆっくりスクロールしただけで慣性が付く → 両方を 1.5〜2 倍にする
+    // ちゃんと弾いても慣性が付かない → 両方を 30% ほど下げる
+    start = <36>;     // ピーク速度 (カウント/フレーム)
+    move = <68>;      // フリック中の合計移動量 (カウント)
 
-    // 短いフリックでも慣性が付くように、判定に必要なフレーム数を減らしている
-    min-events = <4>;     // 既定 10。慣性が付く前に必要なイベント数
-    decel-samples = <2>;  // 既定 3。「離した」と判定するまでの減速フレーム数
+    // 短いフリックを拾うために、慣性が付く前に必要なイベント数を少し減らしている (既定 10)
+    min-events = <6>;
 
-    // 慣性が止まる速度。scale 1 / scale-div 16 なら 1 前後が目安
-    stop = <1>;
+    // 慣性が止まる速度。scale 4 / scale-div 540 なら 7 前後が目安
+    // (下げると末尾がカクつくので、末尾が気になるときは上げる)
+    stop = <7>;
 
     // 減衰の強さ: decay-* を 990 → 995 にすると長く滑り、980 にすると早く止まる
     // friction を上げる (例 100) と小さなフリックが早めに止まる
-    friction = <20>;  // 既定 35。小さなフリックも少し長く滑らせる
     // decay-fast = <990>;
     // decay-slow = <990>;
     // decay-tail = <990>;
+    // friction = <35>;
 };
 
 // ---------------------------------------------------------------------------
@@ -112,27 +115,27 @@
             &zip_y_scaler (-1) 1          // 縦方向の反転 (逆にしたい場合は 1 1)
             &zip_xy_to_scroll_mapper      // XY の動きをホイール入力へ変換
             &scroll_inertia               // 慣性
-            &zip_scroll_scaler 1 16       // スクロール速度 (16 カウントで 1 ノッチ)
+            &zip_scroll_scaler 4 540      // スクロール速度 (135 カウントで 1 ノッチ)。&scroll_inertia の scale / scale-div と合わせる
         >;
     };
 
     // J を押している間: ジェスチャー判定。
-    // 同時に GESTURE_SETTLE レイヤー (8) を「最後のボール入力から 500ms」だけ有効にする。
+    // 同時に GESTURE_SETTLE レイヤー (8) を「最後のボール入力から 800ms」だけ有効にする。
     gesture {
         layers = <7>;   // GESTURE レイヤー
         input-processors = <
-            &zip_temp_layer 8 500
+            &zip_temp_layer 8 800
             &trackball_gesture
         >;
     };
 
     // J を離した後、ボールが惰性で回っている間はここに入り、動きを捨てる。
-    // ボールが止まって 500ms 経つとレイヤー 8 が外れて通常のカーソル操作に戻る。
-    // 惰性で回る時間が長くてカーソルが動くなら 500 を大きくする。
+    // ボールが止まって 800ms 経つとレイヤー 8 が外れて通常のカーソル操作に戻る。
+    // 惰性で回る時間が長くてカーソルが動くなら 800 を大きくする。
     gesture_settle {
         layers = <8>;   // GESTURE_SETTLE レイヤー
         input-processors = <
-            &zip_temp_layer 8 500
+            &zip_temp_layer 8 800
             &trackball_sink
         >;
     };
@@ -191,6 +194,21 @@
             #binding-cells = <2>;
             tapping-term-ms = <200>;
         };
+
+        // ジェスチャーレイヤー用の layer-tap。
+        // 通常の &lt は 200ms 押してからレイヤーが有効になり、その間のボール操作が
+        // カーソル移動になってしまうので、判定時間を短くしている。
+        // 短くしすぎると J をゆっくり打ったときにレイヤーが発動するので 100〜150 が目安。
+        lt_gesture: lt_gesture {
+            compatible = "zmk,behavior-hold-tap";
+            label = "LAYER_TAP_GESTURE";
+            bindings = <&mo>, <&kp>;
+
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <120>;
+            quick-tap-ms = <150>;
+        };
     };
 
     keymap {
@@ -199,7 +217,7 @@
         default_layer {
             bindings = <
 &kp Q             &kp W             &kp E         &kp R                          &kp T                                          &kp Y              &kp U  &kp I      &kp O       &kp P
-&kp A             &kp S             &kp D         &kp F                          &kp G        &kp SEMICOLON      &kp SEMI       &kp H              &lt 7 J  &lt 5 K    &kp L       &kp ENTER
+&kp A             &kp S             &kp D         &kp F                          &kp G        &kp SEMICOLON      &kp SEMI       &kp H              &lt_gesture 7 J  &lt 5 K    &kp L       &kp ENTER
 &mt LEFT_SHIFT Z  &kp X             &kp C         &kp V                          &kp B        &kp EQUAL          &kp MINUS      &kp N              &kp M  &kp COMMA  &kp PERIOD  &mt RIGHT_SHIFT SLASH
 &kp GRAVE         &kp LEFT_CONTROL  &kp LEFT_ALT  &lt_to_layer_0 2 LEFT_COMMAND  &lt 3 SPACE  &lt 1 TAB          &kp BACKSPACE  &kp RIGHT_COMMAND                                &lt 6 DEL
             >;

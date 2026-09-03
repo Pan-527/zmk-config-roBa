@@ -10,10 +10,12 @@ SCROLL レイヤー (K 長押し) でボールを弾いて離すと、iOS のよ
 [mjmjm0101/zmk-input-processor-scroll-inertia](https://github.com/mjmjm0101/zmk-input-processor-scroll-inertia) を使用しています。
 
 - 縦スクロール専用 (`axis = <1>`)。Shift を押している間は横スクロールになります。
+- スクロール量と各しきい値は、モジュール作者の推奨値 (1000CPI, `zip_scroll_scaler 4 675`, start 45, move 85) を roBa の 800CPI に換算したものです。以前のドライバ内蔵スクロール (16 カウントで 1 ノッチ) よりかなりゆっくりになりますが、慣性で 1 フリックあたりの移動量が増えるため、作者はスクロール量を減らすことを推奨しています。
 - 調整値は `config/roBa.keymap` の `&scroll_inertia` にまとめてあります。
-  - 慣性が付きにくい: `start` / `move` / `min-events` を下げる。逆にゆっくりスクロールしただけで慣性が付くなら上げる
+  - スクロール速度: `&trackball_listener` 内の `&zip_scroll_scaler 4 540` の第 2 引数を変更 (小さいほど速い。270 で 2 倍速)。変更したら `&scroll_inertia` の `scale-div` も同じ値にする
+  - 慣性が付きにくい: `start` / `move` を 30% ほど下げる。逆にゆっくりスクロールしただけで慣性が付くなら 1.5〜2 倍にする
   - 滑りすぎる / 止まりが遅い: `decay-*` を下げる (例 `980`) か `friction` を上げる (例 `100`)
-  - スクロール速度: `&trackball_listener` 内の `&zip_scroll_scaler 1 16` の第 2 引数を変更 (小さいほど速い)。変更したら `&scroll_inertia` の `scale-div` も同じ値にする
+  - 末尾がカクつく: `stop` を上げる
   - 縦方向が逆: `&zip_y_scaler (-1) 1` を `&zip_y_scaler 1 1` にする
 
 ### トラックボールジェスチャー
@@ -30,8 +32,8 @@ GESTURE レイヤー (J 長押し) でボールを弾くと、方向に応じた
 
 - 割り当ては `config/roBa.keymap` の `&trackball_gesture` の `bindings` (右, 左, 上, 下 の順) で変更できます。上下が逆なら 3 つ目と 4 つ目を入れ替えてください。
 - 感度は `tick` で調整します (小さいほど少ない動きで発火)。
-- J を離した後もボールは惰性で回るので、その間はカーソルが動かないように GESTURE_SETTLE レイヤー (8) が「最後のボール入力から 500ms」だけ自動で有効になり、ボールの動きを捨てます。この時間は `&trackball_listener` 内の `&zip_temp_layer 8 500` の 2 つ目の引数で変更できます。
-- J は layer-tap なので、押してから約 200ms (tapping-term) 経つまではレイヤーが有効になりません。押した直後に弾くとその分カーソルが動くので、J を押してひと呼吸おいてから弾いてください。
+- J を離した後もボールは惰性で回るので、その間はカーソルが動かないように GESTURE_SETTLE レイヤー (8) が「最後のボール入力から 800ms」だけ自動で有効になり、ボールの動きを捨てます。この時間は `&trackball_listener` 内の `&zip_temp_layer 8 800` の 2 つ目の引数で変更できます。
+- J は layer-tap なので、押してから判定時間が経つまではレイヤーが有効になりません。この間のボール操作はカーソル移動になるため、J 専用の `lt_gesture` で判定時間を 120ms に短くしています (通常の `&lt` は 200ms)。それでも動く場合は J を押してひと呼吸おいてから弾くか、`tapping-term-ms` をさらに短くしてください。
 
 ### 構成
 
