@@ -22,6 +22,15 @@
     };
 };
 
+// 慣性スクロールとトラックボールジェスチャーは central (右手側) でのみ有効化する
+&scroll_inertia {
+    status = "okay";
+};
+
+&trackball_gesture {
+    status = "okay";
+};
+
 &pinctrl {
     spi0_default: spi0_default {
         group1 {
