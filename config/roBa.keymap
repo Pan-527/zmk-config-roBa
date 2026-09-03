@@ -119,30 +119,17 @@
     // 「捨てる」のではなく、&zip_xy_scaler 0 1 で移動量を 0 に書き換える必要がある。
 
     // J を押している間 (1/2): ジェスチャー判定。
-    // 同時に GESTURE_SETTLE レイヤー (8) を「J 押下中の最後のボール入力から 700ms」だけ有効にする。
     // process-next で次のチェーン (gesture_guard) にもイベントを流す。
     gesture {
         layers = <7>;   // GESTURE レイヤー
         process-next;
-        input-processors = <
-            &zip_temp_layer 8 700
-            &trackball_gesture
-        >;
+        input-processors = <&trackball_gesture>;
     };
 
     // J を押している間 (2/2): ジェスチャー判定が終わった後の移動量を 0 にしてカーソルを止める。
+    // J を離した瞬間に通常のカーソル操作に戻る。
     gesture_guard {
         layers = <7>;   // GESTURE レイヤー
-        input-processors = <&zip_xy_scaler 0 1>;
-    };
-
-    // J を離した直後 (レイヤー 8 が有効な間) はここに入り、移動量を 0 にして
-    // ボールの惰性回転でカーソルが動かないようにする。
-    // ここでは待機時間を延長しない (延長するとボールに触れている限り戻らなくなる)。
-    // J を離してから最大 700ms で通常のカーソル操作に戻る。
-    // 惰性で回る時間が長くてカーソルが動くなら gesture 側の 700 を大きくする。
-    gesture_settle {
-        layers = <8>;   // GESTURE_SETTLE レイヤー
         input-processors = <&zip_xy_scaler 0 1>;
     };
 };
@@ -288,16 +275,6 @@
         };
 
         GESTURE {
-            bindings = <
-&trans  &trans  &trans  &trans  &trans                      &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans                          &trans
-            >;
-        };
-
-        // ジェスチャー後にボールの惰性回転を無視するための一時レイヤー (キーは全て透過)
-        GESTURE_SETTLE {
             bindings = <
 &trans  &trans  &trans  &trans  &trans                      &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
