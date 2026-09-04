@@ -85,13 +85,15 @@
     mode = <1>;       // 0 = 生の XY, 1 = 上下左右の 4 方向判定, 2 = 斜め込みの 8 方向判定
 
     // 順番は 右, 左, 上 (ボールを奥へ), 下 (ボールを手前へ)
-    // 上下が逆になる場合は 3 つ目と 4 つ目を入れ替える
-    bindings = <&kp LC(RIGHT_ARROW)>,   // 右: 次のデスクトップ
-               <&kp LC(LEFT_ARROW)>,    // 左: 前のデスクトップ
-               <&kp LC(UP_ARROW)>,      // 上: Mission Control
-               <&kp LC(DOWN_ARROW)>;    // 下: アプリケーション Expose
+    // 各 binding は「キーを送ってから GESTURE_DONE レイヤー (8) を有効にする」マクロ。
+    // レイヤー 8 が有効な間はボールの動きを無視するので、J を押している間は 1 回しか発火しない。
+    // 割り当てを変えるときは下の macros 内の gesture_* を編集する。
+    bindings = <&gesture_right>,    // 右: 前のデスクトップ (トラックパッドのスワイプと同じ向き)
+               <&gesture_left>,     // 左: 次のデスクトップ
+               <&gesture_up>,       // 上: Mission Control
+               <&gesture_down>;     // 下: アプリケーション Expose
 
-    tick = <300>;     // 1 回発火するのに必要な移動量 (カウント)。小さくすると敏感になる
+    tick = <200>;     // 1 回発火するのに必要な移動量 (カウント)。小さくすると敏感になる
     tap-ms = <30>;    // キーを押してから離すまでの時間
     wait-ms = <0>;    // 連続発火の間隔 (大きくすると発火中に処理が止まるので 0 推奨)
     threshold = <0>;  // 0 にしないと横方向のみの動きが取りこぼされる
@@ -117,6 +119,13 @@
     // 注意: ZMK の input-listener は、レイヤー別チェーンのプロセッサが STOP を返しても
     // それを無視してイベントを HID に流してしまう。そのためカーソルを止めるには
     // 「捨てる」のではなく、&zip_xy_scaler 0 1 で移動量を 0 に書き換える必要がある。
+
+    // ジェスチャー発火後 (GESTURE_DONE レイヤー 8): J を離すまでボールの動きを無視する。
+    // 2 回目の発火や、指を戻す動きによる逆方向の発火を防ぐ。gesture より先に置くこと。
+    gesture_done {
+        layers = <8>;   // GESTURE_DONE レイヤー
+        input-processors = <&zip_xy_scaler 0 1>;
+    };
 
     // J を押している間 (1/2): ジェスチャー判定。
     // process-next で次のチェーン (gesture_guard) にもイベントを流す。
@@ -176,6 +185,57 @@
             bindings = <&to 0 &macro_param_1to1 &kp MACRO_PLACEHOLDER>;
             label = "TO_LAYER_0";
         };
+
+        // J 長押し用: 押している間 GESTURE レイヤー (7) を有効にし、
+        // 離したときに GESTURE レイヤーと GESTURE_DONE レイヤー (8) の両方を解除する。
+        gesture_hold: gesture_hold {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <0>;
+            bindings = <&macro_press &mo 7>,
+                       <&macro_pause_for_release>,
+                       <&macro_release &mo 7>,
+                       <&macro_release &mo 8>;
+            label = "GESTURE_HOLD";
+        };
+
+        // トラックボールジェスチャーの各方向: キーを送ってから GESTURE_DONE レイヤーを有効にする
+        gesture_right: gesture_right {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <30>;
+            bindings = <&macro_tap &kp LC(LEFT_ARROW)>, <&macro_press &mo 8>;
+            label = "GESTURE_RIGHT";
+        };
+
+        gesture_left: gesture_left {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <30>;
+            bindings = <&macro_tap &kp LC(RIGHT_ARROW)>, <&macro_press &mo 8>;
+            label = "GESTURE_LEFT";
+        };
+
+        gesture_up: gesture_up {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <30>;
+            bindings = <&macro_tap &kp LC(UP_ARROW)>, <&macro_press &mo 8>;
+            label = "GESTURE_UP";
+        };
+
+        gesture_down: gesture_down {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <0>;
+            tap-ms = <30>;
+            bindings = <&macro_tap &kp LC(DOWN_ARROW)>, <&macro_press &mo 8>;
+            label = "GESTURE_DOWN";
+        };
     };
 
     behaviors {
@@ -188,14 +248,15 @@
             tapping-term-ms = <200>;
         };
 
-        // ジェスチャーレイヤー用の layer-tap。
+        // ジェスチャーレイヤー用の layer-tap。長押しで gesture_hold マクロ、タップでキー。
         // 通常の &lt は 200ms 押してからレイヤーが有効になり、その間のボール操作が
         // カーソル移動になってしまうので、判定時間を短くしている。
         // 短くしすぎると J をゆっくり打ったときにレイヤーが発動するので 100〜150 が目安。
+        // 使い方: &lt_gesture 0 J (最初の引数は使わないので 0)
         lt_gesture: lt_gesture {
             compatible = "zmk,behavior-hold-tap";
             label = "LAYER_TAP_GESTURE";
-            bindings = <&mo>, <&kp>;
+            bindings = <&gesture_hold>, <&kp>;
 
             #binding-cells = <2>;
             flavor = "tap-preferred";
@@ -210,7 +271,7 @@
         default_layer {
             bindings = <
 &kp Q             &kp W             &kp E         &kp R                          &kp T                                          &kp Y              &kp U  &kp I      &kp O       &kp P
-&kp A             &kp S             &kp D         &kp F                          &kp G        &kp SEMICOLON      &kp SEMI       &kp H              &lt_gesture 7 J  &lt 5 K    &kp L       &kp ENTER
+&kp A             &kp S             &kp D         &kp F                          &kp G        &kp SEMICOLON      &kp SEMI       &kp H              &lt_gesture 0 J  &lt 5 K    &kp L       &kp ENTER
 &mt LEFT_SHIFT Z  &kp X             &kp C         &kp V                          &kp B        &kp EQUAL          &kp MINUS      &kp N              &kp M  &kp COMMA  &kp PERIOD  &mt RIGHT_SHIFT SLASH
 &kp GRAVE         &kp LEFT_CONTROL  &kp LEFT_ALT  &lt_to_layer_0 2 LEFT_COMMAND  &lt 3 SPACE  &lt 1 TAB          &kp BACKSPACE  &kp RIGHT_COMMAND                                &lt 6 DEL
             >;
@@ -275,6 +336,16 @@
         };
 
         GESTURE {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans                      &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans                          &trans
+            >;
+        };
+
+        // ジェスチャー発火後、J を離すまでボールの動きを無視するためのレイヤー (キーは全て透過)
+        GESTURE_DONE {
             bindings = <
 &trans  &trans  &trans  &trans  &trans                      &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
