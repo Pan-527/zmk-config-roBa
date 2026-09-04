@@ -189,9 +189,11 @@
         };
 
         // ジェスチャーレイヤー用の layer-tap。
-        // 通常の &lt は 200ms 押してからレイヤーが有効になり、その間のボール操作が
-        // カーソル移動になってしまうので、判定時間を短くしている。
-        // 短くしすぎると J をゆっくり打ったときにレイヤーが発動するので 100〜150 が目安。
+        // - tapping-term-ms: これ以上押し続けるとジェスチャーレイヤーになる。
+        //   短くすると「じ」と打つときに j が落ちやすくなるので 200 前後が目安。
+        // - require-prior-idle-ms: 直前にこの時間以内に別のキーを打っていたら
+        //   必ず文字 (タップ) として扱う。文章を打っている最中に長押し扱いになるのを防ぐ。
+        //   ジェスチャーは手を止めてから J を押せば効く。
         lt_gesture: lt_gesture {
             compatible = "zmk,behavior-hold-tap";
             label = "LAYER_TAP_GESTURE";
@@ -199,8 +201,9 @@
 
             #binding-cells = <2>;
             flavor = "tap-preferred";
-            tapping-term-ms = <120>;
+            tapping-term-ms = <200>;
             quick-tap-ms = <150>;
+            require-prior-idle-ms = <125>;
         };
     };
 
