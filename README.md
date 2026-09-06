@@ -10,6 +10,7 @@ SCROLL レイヤー (K 長押し) でボールを弾いて離すと、iOS のよ
 [mjmjm0101/zmk-input-processor-scroll-inertia](https://github.com/mjmjm0101/zmk-input-processor-scroll-inertia) を使用しています。
 
 - 縦スクロール専用 (`axis = <1>`)。Shift を押している間は横スクロールになります。
+- SCROLL レイヤーでは左親指の Cmd 位置が素の Cmd になっているので、K + Cmd + ボールで Cmd+ホイール (Figma やブラウザのズーム) になります。
 - スクロール量は 20 カウントで 1 ノッチ (以前のドライバ内蔵スクロールは 16)。慣性の発動条件はモジュール既定値よりかなり緩くしてあり、弱いフリックでも滑ります。
 - 調整値は `config/roBa.keymap` の `&scroll_inertia` にまとめてあります。
   - スクロール速度: `&trackball_listener` 内の `&zip_scroll_scaler 1 20` の第 2 引数を変更 (小さいほど速い)。変更したら `&scroll_inertia` の `scale-div` も同じ値にする

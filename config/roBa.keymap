@@ -354,12 +354,13 @@
             >;
         };
 
+        // 左親指の Cmd 位置を素の Cmd にしている: K + Cmd + ボールで Cmd+ホイール (Figma などのズーム)
         SCROLL {
             bindings = <
 &trans  &trans              &kp LC(UP_ARROW)    &trans               &trans                      &trans  &trans  &trans  &trans  &trans
 &trans  &kp LC(LEFT_ARROW)  &kp LC(DOWN_ARROW)  &kp LC(RIGHT_ARROW)  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans              &trans              &trans               &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans              &trans              &trans               &trans  &trans      &trans  &trans                          &trans
+&trans  &trans              &trans              &kp LEFT_COMMAND     &trans  &trans      &trans  &trans                          &trans
             >;
         };
 
