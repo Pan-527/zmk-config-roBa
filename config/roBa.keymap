@@ -253,14 +253,15 @@
             label = "GESTURE_HOLD";
         };
 
-        // 上下ジェスチャー: キーを送ってから GESTURE_DONE レイヤー (8) を有効にし、
-        // J を離すまで上下の再発火を止める
+        // 上下ジェスチャー: まず GESTURE_DONE レイヤー (8) を有効にして上下の再発火を止め、
+        // その後にキーを送る。順番が逆だと、キー送信中に届いたボールの動きで 2 回目が
+        // 発火して Mission Control が開いてすぐ閉じてしまう。J を離すとレイヤー 8 は解除される。
         gesture_up: gesture_up {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             wait-ms = <0>;
             tap-ms = <30>;
-            bindings = <&macro_tap &kp LC(UP_ARROW)>, <&macro_press &mo 8>;
+            bindings = <&macro_press &mo 8>, <&macro_tap &kp LC(UP_ARROW)>;
             label = "GESTURE_UP";
         };
 
@@ -269,7 +270,7 @@
             #binding-cells = <0>;
             wait-ms = <0>;
             tap-ms = <30>;
-            bindings = <&macro_tap &kp LC(DOWN_ARROW)>, <&macro_press &mo 8>;
+            bindings = <&macro_press &mo 8>, <&macro_tap &kp LC(DOWN_ARROW)>;
             label = "GESTURE_DOWN";
         };
     };
