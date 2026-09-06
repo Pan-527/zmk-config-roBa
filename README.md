@@ -9,7 +9,7 @@
 SCROLL レイヤー (K 長押し) でボールを弾いて離すと、iOS のようにスクロールが減衰しながら続きます。
 [mjmjm0101/zmk-input-processor-scroll-inertia](https://github.com/mjmjm0101/zmk-input-processor-scroll-inertia) を使用しています。
 
-- 縦スクロール専用 (`axis = <1>`)。Shift を押している間は横スクロールになります。
+- 縦横どちらにもスクロールできます。[kot149/zmk-scroll-snap](https://github.com/kot149/zmk-scroll-snap) がボールの動きを縦か横の強い方に寄せてしばらくロックするので、縦に転がしているときに斜めに流れることはありません。横に転がせば横スクロールになります (境界は約 32°)。慣性は両軸に効きます。
 - SCROLL レイヤーでは左親指の Cmd 位置が素の Cmd になっているので、K + Cmd + ボールで Cmd+ホイール (Figma やブラウザのズーム) になります。
 - スクロール量は 20 カウントで 1 ノッチ (以前のドライバ内蔵スクロールは 16)。慣性の発動条件はモジュール既定値よりかなり緩くしてあり、弱いフリックでも滑ります。
 - 調整値は `config/roBa.keymap` の `&scroll_inertia` にまとめてあります。

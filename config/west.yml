@@ -8,6 +8,8 @@ manifest:
       url-base: https://github.com/mjmjm0101
     - name: zettaface
       url-base: https://github.com/zettaface
+    - name: kot149
+      url-base: https://github.com/kot149
   projects:
     - name: zmk
       remote: zmkfirmware
@@ -25,5 +27,9 @@ manifest:
     - name: zmk-input-processor-keybind
       remote: zettaface
       revision: 64303bd3932bfa7f49261fc6d0c9a3fdd06f8271
+    # スクロールの軸スナップ (縦横どちらか強い方に寄せる)。README の revision v1 はタグが存在しないためコミット固定
+    - name: zmk-scroll-snap
+      remote: kot149
+      revision: dd21a0f71df7f0d2a55017000c6dd0ff0ebd8d6f
   self:
     path: config
