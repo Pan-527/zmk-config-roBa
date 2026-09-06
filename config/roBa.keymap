@@ -101,7 +101,9 @@
 //         フリックで 2 回発火すると開いてすぐ閉じてしまうため)。
 //         上に弾くと GESTURE_UP_DONE レイヤー (8) が有効になり、上は無視・下は有効。
 //         下に弾くと GESTURE_DOWN_DONE レイヤー (9) が有効になり、下は無視・上は有効。
-//         なので「上で Mission Control を開いて、下で閉じる」ができる。J を離すと解除される。
+//         なので「上で Mission Control を開いて、下で閉じる」ができる。
+//         このレイヤーはボールが止まって 300ms 経つと自動で外れる (J を離しても外れる) ので、
+//         少し間を置けば同じ方向をもう一度弾ける (App Expose を下→下で開閉するなど)。
 // ---------------------------------------------------------------------------
 &trackball_gesture {
     mode = <1>;       // 0 = 生の XY, 1 = 上下左右の 4 方向判定, 2 = 斜め込みの 8 方向判定
@@ -185,10 +187,14 @@
 
     // 各チェーンは上から順に評価され、process-next の付いたものは次にも流れる。
     // 上に弾いた後 (レイヤー 8): 左右と下だけ判定し、移動量を 0 にする。
+    // tl_gesture_up_done は「最後のボール入力から 300ms」でレイヤー 8 を自動解除する。
     gesture_up_done_h {
         layers = <8>;   // GESTURE_UP_DONE レイヤー
         process-next;
-        input-processors = <&trackball_gesture>;
+        input-processors = <
+            &tl_gesture_up_done 8 300
+            &trackball_gesture
+        >;
     };
 
     gesture_up_done_v {
@@ -206,10 +212,14 @@
     };
 
     // 下に弾いた後 (レイヤー 9): 左右と上だけ判定し、移動量を 0 にする。
+    // tl_gesture_down_done は「最後のボール入力から 300ms」でレイヤー 9 を自動解除する。
     gesture_down_done_h {
         layers = <9>;   // GESTURE_DOWN_DONE レイヤー
         process-next;
-        input-processors = <&trackball_gesture>;
+        input-processors = <
+            &tl_gesture_down_done 9 300
+            &trackball_gesture
+        >;
     };
 
     gesture_down_done_v {
@@ -253,6 +263,18 @@
 };
 
 / {
+    // 上下ジェスチャー後のレイヤー (8, 9) を、ボールが止まってから一定時間で自動解除するための
+    // 一時レイヤープロセッサ。レイヤーごとに別インスタンスが必要。
+    tl_gesture_up_done: tl_gesture_up_done {
+        compatible = "zmk,input-processor-temp-layer";
+        #input-processor-cells = <2>;
+    };
+
+    tl_gesture_down_done: tl_gesture_down_done {
+        compatible = "zmk,input-processor-temp-layer";
+        #input-processor-cells = <2>;
+    };
+
     combos {
         compatible = "zmk,combos";
 
