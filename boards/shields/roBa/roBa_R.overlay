@@ -35,6 +35,14 @@
     status = "okay";
 };
 
+&trackball_gesture_down_only {
+    status = "okay";
+};
+
+&trackball_gesture_up_only {
+    status = "okay";
+};
+
 
 &pinctrl {
     spi0_default: spi0_default {

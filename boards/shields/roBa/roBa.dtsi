@@ -135,8 +135,21 @@
         status = "disabled";
     };
 
-    // 上下ジェスチャー用 (左右と分けて「1 回だけ発火」にするため別インスタンス)
+    // 上下ジェスチャー用 (左右と分けて連続発火を止めるため別インスタンス)
     trackball_gesture_v: trackball_gesture_v {
+        compatible = "zmk,input-processor-keybind";
+        #input-processor-cells = <0>;
+        status = "disabled";
+    };
+
+    // 上に弾いた後 (下だけ受け付ける) / 下に弾いた後 (上だけ受け付ける) 用
+    trackball_gesture_down_only: trackball_gesture_down_only {
+        compatible = "zmk,input-processor-keybind";
+        #input-processor-cells = <0>;
+        status = "disabled";
+    };
+
+    trackball_gesture_up_only: trackball_gesture_up_only {
         compatible = "zmk,input-processor-keybind";
         #input-processor-cells = <0>;
         status = "disabled";
