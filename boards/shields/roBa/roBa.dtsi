@@ -134,6 +134,13 @@
         #input-processor-cells = <0>;
         status = "disabled";
     };
+
+    // 上下ジェスチャー用 (左右と分けて「1 回だけ発火」にするため別インスタンス)
+    trackball_gesture_v: trackball_gesture_v {
+        compatible = "zmk,input-processor-keybind";
+        #input-processor-cells = <0>;
+        status = "disabled";
+    };
 };
 
 &spi0 {
