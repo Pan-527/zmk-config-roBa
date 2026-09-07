@@ -103,7 +103,7 @@
 //         下に弾くと GESTURE_DOWN_DONE レイヤー (9) が有効になり、下は無視・上は有効。
 //         なので「上で Mission Control を開いて、下で閉じる」ができる。
 //         このレイヤーはボールが止まって 300ms 経つと自動で外れる (J を離しても外れる) ので、
-//         少し間を置けば同じ方向をもう一度弾ける (App Expose を下→下で開閉するなど)。
+//         少し間を置けば同じ方向をもう一度弾ける (デスクトップ表示を下→下で開閉するなど)。
 // ---------------------------------------------------------------------------
 &trackball_gesture {
     mode = <1>;       // 0 = 生の XY, 1 = 上下左右の 4 方向判定, 2 = 斜め込みの 8 方向判定
@@ -131,7 +131,7 @@
     bindings = <&none>,
                <&none>,
                <&gesture_up>,     // 上: Mission Control
-               <&gesture_down>;   // 下: アプリケーション Expose
+               <&gesture_down>;   // 下: デスクトップを表示 (F11)
 
     tick = <300>;     // 判定前に縦方向を 4 倍しているので、実際は 75 カウントで発火する
     tap-ms = <30>;
@@ -340,9 +340,12 @@
             #binding-cells = <0>;
             wait-ms = <0>;
             tap-ms = <30>;
+            // 下は「デスクトップを表示」(F11)。以前は App Expose (Ctrl+↓) だったが、
+            // App Expose を開く瞬間に macOS の Dock がデッドロックして再起動が必要になる
+            // 事象が起きたため変更した。
             bindings = <&macro_press &mo 9>,
                        <&macro_release &mo 8>,
-                       <&macro_tap &kp LC(DOWN_ARROW)>;
+                       <&macro_tap &kp F11>;
             label = "GESTURE_DOWN";
         };
     };
