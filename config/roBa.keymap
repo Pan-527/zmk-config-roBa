@@ -444,13 +444,16 @@
         };
 
         // ズーム (Cmd + ホイール) 用に 2 か所を素の Cmd にしている。
-        //   J の位置  : K + J + ボール → 右手だけでズームできる (薬指 K + 中指 J + 親指ボール)
-        //   左親指 Cmd: K + 左親指 + ボール → 両手を使う従来のやり方
+        //   N の位置  : K + N + ボール → 右手だけでズームできる (薬指 K + 人差し指 N + 親指ボール)
+        //   左親指 Cmd: K + 左親指 + ボール → 両手を使うやり方
+        // N を使うのは、J や L はコンボ (J+K = 左クリック, K+L = 右クリック) と重なり、
+        // K と同時に押すとクリックが誤爆するため。N はどのコンボにも入っていない。
+        // 押しにくければ M (1 つ右, 中指) や H の位置に移してもよい。
         SCROLL {
             bindings = <
 &trans  &trans              &kp LC(UP_ARROW)    &trans               &trans                      &trans  &trans            &trans  &trans  &trans
-&trans  &kp LC(LEFT_ARROW)  &kp LC(DOWN_ARROW)  &kp LC(RIGHT_ARROW)  &trans  &trans      &trans  &trans  &kp LEFT_COMMAND  &trans  &trans  &trans
-&trans  &trans              &trans              &trans               &trans  &trans      &trans  &trans  &trans            &trans  &trans  &trans
+&trans  &kp LC(LEFT_ARROW)  &kp LC(DOWN_ARROW)  &kp LC(RIGHT_ARROW)  &trans  &trans      &trans  &trans  &trans            &trans  &trans  &trans
+&trans  &trans              &trans              &trans               &trans  &trans      &trans  &kp LEFT_COMMAND  &trans  &trans  &trans  &trans
 &trans  &trans              &trans              &kp LEFT_COMMAND     &trans  &trans      &trans  &trans                                    &trans
             >;
         };
