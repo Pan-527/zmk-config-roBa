@@ -296,17 +296,6 @@
             bindings = <&mkp RCLK>;
             key-positions = <19 20>;
         };
-
-        // 中クリック (H+J)。押している間ボールを転がすと中ボタンドラッグになるので、
-        // Figma などでキャンバスを自由に (斜めにも) 掴んで動かせる。
-        // 人差し指 H + 中指 J を押さえたまま親指でボールを回す。
-        // require-prior-idle-ms: 直前 125ms 以内にキーを打っていたら発火しない (タイピング中の誤爆防止)
-        middle_click {
-            bindings = <&mkp MCLK>;
-            key-positions = <17 18>;
-            layers = <0>;
-            require-prior-idle-ms = <125>;
-        };
     };
 
     macros {
@@ -377,6 +366,20 @@
         // - require-prior-idle-ms: 直前にこの時間以内に別のキーを打っていたら
         //   必ず文字 (タップ) として扱う。文章を打っている最中に長押し扱いになるのを防ぐ。
         //   ジェスチャーは手を止めてから J を押せば効く。
+        // マウスボタンの hold-tap。長押しでマウスボタンを押しっぱなし、タップで文字。
+        // 例: &mt_mkp MCLK I → I 長押しで中クリック (Figma でキャンバスを掴んで移動できる)
+        mt_mkp: mt_mkp {
+            compatible = "zmk,behavior-hold-tap";
+            label = "MOD_TAP_MOUSE_BUTTON";
+            bindings = <&mkp>, <&kp>;
+
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <150>;
+            require-prior-idle-ms = <125>;
+        };
+
         // 使い方: &lt_gesture 0 J (最初の引数は使わないので 0)
         lt_gesture: lt_gesture {
             compatible = "zmk,behavior-hold-tap";
@@ -396,7 +399,7 @@
 
         default_layer {
             bindings = <
-&kp Q             &kp W             &kp E         &kp R                          &kp T                                          &kp Y              &kp U  &kp I           &kp O       &kp P
+&kp Q             &kp W             &kp E         &kp R                          &kp T                                          &kp Y              &kp U  &mt_mkp MCLK I  &kp O       &kp P
 &kp A             &kp S             &kp D         &kp F                          &kp G        &kp SEMICOLON      &kp SEMI       &kp H              &lt_gesture 0 J  &lt 5 K    &kp L       &kp ENTER
 &mt LEFT_SHIFT Z  &kp X             &kp C         &kp V                          &kp B        &kp EQUAL          &kp MINUS      &kp N              &kp M  &kp COMMA  &kp PERIOD  &mt RIGHT_SHIFT SLASH
 &kp GRAVE         &kp LEFT_CONTROL  &kp LEFT_ALT  &lt_to_layer_0 2 LEFT_COMMAND  &lt 3 SPACE  &lt 1 TAB          &kp BACKSPACE  &kp RIGHT_COMMAND                                &lt 6 DEL
@@ -443,18 +446,13 @@
             >;
         };
 
-        // ズーム (Cmd + ホイール) 用に 2 か所を素の Cmd にしている。
-        //   N の位置  : K + N + ボール → 右手だけでズームできる (薬指 K + 人差し指 N + 親指ボール)
-        //   左親指 Cmd: K + 左親指 + ボール → 両手を使うやり方
-        // N を使うのは、J や L はコンボ (J+K = 左クリック, K+L = 右クリック) と重なり、
-        // K と同時に押すとクリックが誤爆するため。N はどのコンボにも入っていない。
-        // 押しにくければ M (1 つ右, 中指) や H の位置に移してもよい。
+        // 左親指の Cmd 位置を素の Cmd にしている: K + Cmd + ボールで Cmd+ホイール (Figma などのズーム)
         SCROLL {
             bindings = <
-&trans  &trans              &kp LC(UP_ARROW)    &trans               &trans                      &trans  &trans            &trans  &trans  &trans
-&trans  &kp LC(LEFT_ARROW)  &kp LC(DOWN_ARROW)  &kp LC(RIGHT_ARROW)  &trans  &trans      &trans  &trans  &trans            &trans  &trans  &trans
-&trans  &trans              &trans              &trans               &trans  &trans      &trans  &kp LEFT_COMMAND  &trans  &trans  &trans  &trans
-&trans  &trans              &trans              &kp LEFT_COMMAND     &trans  &trans      &trans  &trans                                    &trans
+&trans  &trans              &kp LC(UP_ARROW)    &trans               &trans                      &trans  &trans  &trans  &trans  &trans
+&trans  &kp LC(LEFT_ARROW)  &kp LC(DOWN_ARROW)  &kp LC(RIGHT_ARROW)  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans              &trans              &trans               &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans              &trans              &kp LEFT_COMMAND     &trans  &trans      &trans  &trans                          &trans
             >;
         };
 
