@@ -116,6 +116,44 @@
         compatible = "zmk,input-listener";
         status = "disabled";
     };
+
+    // 慣性スクロール用 input processor (mjmjm0101/zmk-input-processor-scroll-inertia)。
+    // トラックボールのある右手側 (roBa_R.overlay) でのみ有効化する。
+    // 左手側 (peripheral) で有効になるとビルドエラーになるためここでは disabled。
+    // 各パラメータは config/roBa.keymap で設定する。
+    scroll_inertia: scroll_inertia {
+        compatible = "zmk,input-processor-scroll-inertia";
+        #input-processor-cells = <0>;
+        status = "disabled";
+    };
+
+    // トラックボールジェスチャー用 input processor (zettaface/zmk-input-processor-keybind)。
+    // ボールの動きをキー入力に変換する。bindings 等は config/roBa.keymap で設定する。
+    trackball_gesture: trackball_gesture {
+        compatible = "zmk,input-processor-keybind";
+        #input-processor-cells = <0>;
+        status = "disabled";
+    };
+
+    // 上下ジェスチャー用 (左右と分けて連続発火を止めるため別インスタンス)
+    trackball_gesture_v: trackball_gesture_v {
+        compatible = "zmk,input-processor-keybind";
+        #input-processor-cells = <0>;
+        status = "disabled";
+    };
+
+    // 上に弾いた後 (下だけ受け付ける) / 下に弾いた後 (上だけ受け付ける) 用
+    trackball_gesture_down_only: trackball_gesture_down_only {
+        compatible = "zmk,input-processor-keybind";
+        #input-processor-cells = <0>;
+        status = "disabled";
+    };
+
+    trackball_gesture_up_only: trackball_gesture_up_only {
+        compatible = "zmk,input-processor-keybind";
+        #input-processor-cells = <0>;
+        status = "disabled";
+    };
 };
 
 &spi0 {
