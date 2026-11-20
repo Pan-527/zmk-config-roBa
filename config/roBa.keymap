@@ -133,11 +133,11 @@
                <&gesture_up>,     // 上: Mission Control
                <&gesture_down>;   // 下: デスクトップを表示 (F11)
 
-    tick = <300>;     // 判定前に縦方向を 4 倍しているので、実際は 75 カウントで発火する
+    tick = <300>;     // 判定前に縦方向を 2 倍しているので、実際は 150 カウントで発火する
     tap-ms = <30>;
     wait-ms = <0>;
     threshold = <0>;
-    max_threshold = <2000>;         // 縦は 4 倍された値で比較される
+    max_threshold = <2000>;         // 縦は 2 倍された値で比較される
     max_pending_activations = <1>;
 };
 
@@ -202,7 +202,7 @@
         layers = <8>;
         process-next;
         input-processors = <
-            &zip_y_scaler 4 1
+            &zip_y_scaler 2 1
             &trackball_gesture_down_only
         >;
     };
@@ -227,7 +227,7 @@
         layers = <9>;
         process-next;
         input-processors = <
-            &zip_y_scaler 4 1
+            &zip_y_scaler 2 1
             &trackball_gesture_up_only
         >;
     };
@@ -249,8 +249,8 @@
         layers = <7>;
         process-next;
         input-processors = <
-            &zip_y_scaler 4 1       // 縦方向の動きを 4 倍にして判定に渡す (親指は縦に大きく動かしにくいため)。
-                                    // 実質 tick÷4 で発火する。縦が敏感すぎれば 3 1 や 2 1 にする
+            &zip_y_scaler 2 1       // 縦方向の動きを 2 倍にして判定に渡す (34mm ボール用。Coropit のときは 4 倍だった)。
+                                    // 実質 tick÷2 で発火する。上下に誤爆するなら 1 1、上下が出にくければ 3 1 にする
             &trackball_gesture_v
         >;
     };
@@ -402,7 +402,7 @@
 &kp Q             &kp W             &kp E         &kp R                          &kp T                                          &kp Y              &kp U  &mt_mkp MCLK I  &kp O       &kp P
 &kp A             &kp S             &kp D         &kp F                          &kp G        &kp SEMICOLON      &kp SEMI       &kp H              &lt_gesture 0 J  &lt 5 K    &kp L       &kp ENTER
 &mt LEFT_SHIFT Z  &kp X             &kp C         &kp V                          &kp B        &kp EQUAL          &kp MINUS      &kp N              &kp M  &kp COMMA  &kp PERIOD  &mt RIGHT_SHIFT SLASH
-&kp GRAVE         &kp LEFT_CONTROL  &kp LEFT_ALT  &lt_to_layer_0 2 LEFT_COMMAND  &lt 3 SPACE  &lt 1 TAB          &kp BACKSPACE  &kp RIGHT_COMMAND                                &lt 6 DEL
+&kp GRAVE         &kp LEFT_CONTROL  &kp LEFT_ALT  &kp LEFT_COMMAND               &lt 2 SPACE  &lt 3 TAB          &kp BACKSPACE  &kp RIGHT_COMMAND                                &lt 6 DEL
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOLUME_DOWN C_VOLUME_UP>;
